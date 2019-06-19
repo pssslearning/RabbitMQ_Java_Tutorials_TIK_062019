@@ -1,0 +1,11 @@
+{
+    "vhost": "/",
+    "name": "TestQueue",
+    "durable": "true",
+    "auto_delete": "false",
+    "arguments": {
+        "x-max-length": 1200,
+        "x-max-length-bytes": 126976,
+        "x-overflow": "reject-publish"
+    }
+}

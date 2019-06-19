@@ -1,0 +1,74 @@
+# 01_List_Virtual_Hosts
+curl --verbose -X GET -H"Accept: application/json" --basic --user guest:guest http://localhost:15672/api/vhosts | jq '.'
+
+# 02_List_Current_queues
+curl -s -X GET -H"Accept: application/json" \
+--basic --user guest:guest \
+"http://localhost:15672/api/queues?page=1&page_size=100&name=&use_regex=false&pagination=true" | jq '.'
+
+# 03_Create_a_new_test_queue_with_params
+# x-max-length:
+#     How many (ready) messages a queue can contain before 
+#     it starts to drop them from its head.
+# x-max-length-bytes:
+#     Total body size for ready messages a queue can contain 
+#     before it starts to drop them from its head.
+# x-overflow:
+#     Sets the queue overflow behaviour. 
+#     This determines what happens to messages when 
+#     the maximum length of a queue is reached. 
+#     Valid values are 'drop-head' or 'reject-publish'. 
+
+curl --verbose -X PUT \
+-H"Accept: application/json" \
+-H"Content-Type: application/json;charset=UTF-8" \
+-d @03_Create_a_new_test_queue_with_params.json \
+--basic --user guest:guest \
+"http://localhost:15672/api/queues/%2F/TestQueue" | jq '.'
+
+# 04_Get_Overview_info_about_the_test_queue
+curl -s -X GET -H"Accept: application/json" \
+--basic --user guest:guest \
+"http://localhost:15672/api/queues/%2F/TestQueue?lengths_age=60&lengths_incr=5&msg_rates_age=60&msg_rates_incr=5&data_rates_age=60&data_rates_incr=5" | jq '.'
+
+# 05_Get_List_of_Bindings_of_the_test_queue
+curl -s -X GET -H"Accept: application/json" \
+--basic --user guest:guest \
+"http://localhost:15672/api/queues/%2F/TestQueue/bindings" | jq '.'
+
+# 06_Publish_a_message_directly_to_the_test_queue
+# You can set other message properties here (delivery mode and headers are pulled out as the most common cases).
+# 
+# Invalid properties will be ignored. Valid properties are:
+# 
+#     content_type
+#     content_encoding
+#     priority
+#     correlation_id
+#     reply_to
+#     expiration
+#     message_id
+#     timestamp
+#     type
+#     user_id
+#     app_id
+#     cluster_id
+
+curl --verbose -X POST \
+-H"Accept: application/json" \
+-H"Content-Type: application/json;charset=UTF-8" \
+-d @06_Publish_a_message_directly_to_the_test_queue.json \
+--basic --user guest:guest \
+"http://localhost:15672/api/exchanges/%2F/amq.default/publish" | jq '.'
+
+# 07_GET_Up_to_10_first_messages_and_Acknowledge (No re-queue)
+curl --verbose -X POST \
+-H"Accept: application/json" \
+-H"Content-Type: application/json;charset=UTF-8" \
+-d @07_GET_Up_to_10_first_messages_and_Acknowledge_No_re-queue.json \
+--basic --user guest:guest \
+"http://localhost:15672/api/queues/%2F/TestQueue/get" | jq '.'
+
+
+
+
